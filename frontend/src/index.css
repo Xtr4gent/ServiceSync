@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --color-garage-950: #0f1419;
+  --color-garage-900: #1a2229;
+  --color-garage-800: #24303d;
+  --color-garage-700: #2d3d4d;
+  --color-garage-600: #4a5f73;
+  --color-amber-500: #f59e0b;
+  --color-amber-400: #fbbf24;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-garage-950);
+  color: #e2e8f0;
+}

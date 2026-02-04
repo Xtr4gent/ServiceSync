@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+backend/.venv/
+
+# Env/secrets
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+*.secret
+
+# DB + uploads (runtime data)
+backend/garage.db
+backend/*.db
+backend/uploads/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Vite build output
+dist/
+frontend/dist/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
