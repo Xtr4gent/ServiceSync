@@ -11,6 +11,7 @@ class Vehicle(Base):
     nickname = Column(String(128), nullable=True)
     make = Column(String(128), nullable=False)
     model = Column(String(128), nullable=False)
+    trim = Column(String(128), nullable=True)
     year = Column(Integer, nullable=False)
     vin = Column(String(32), nullable=True)
     license_plate = Column(String(32), nullable=True)

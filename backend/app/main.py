@@ -8,7 +8,7 @@ from .database import engine, Base, SessionLocal
 from .config import settings
 from .models import User
 from .auth import get_password_hash
-from .routers import auth, vehicles, maintenance, mods
+from .routers import auth, vehicles, maintenance, mods, dashboard
 
 app = FastAPI(title=settings.app_name)
 
@@ -21,6 +21,19 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+
+
+def _migrate_add_trim():
+    """Add trim column to vehicles if missing (existing DBs)."""
+    from sqlalchemy import text, inspect
+    insp = inspect(engine)
+    cols = [c["name"] for c in insp.get_columns("vehicles")]
+    if "trim" not in cols:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE vehicles ADD COLUMN trim VARCHAR(128)"))
+
+
+_migrate_add_trim()
 
 
 def _ensure_single_user():
@@ -46,6 +59,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(vehicles.router, prefix="/api")
 app.include_router(maintenance.router, prefix="/api")
 app.include_router(mods.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
 
 
 @app.get("/api/health")

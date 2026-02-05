@@ -5,6 +5,7 @@ export interface Vehicle {
   nickname: string | null;
   make: string;
   model: string;
+  trim: string | null;
   year: number;
   vin: string | null;
   license_plate: string | null;
@@ -18,6 +19,7 @@ export interface VehicleCreate {
   nickname?: string | null;
   make: string;
   model: string;
+  trim?: string | null;
   year: number;
   vin?: string | null;
   license_plate?: string | null;
@@ -29,6 +31,7 @@ export interface VehicleUpdate {
   nickname?: string | null;
   make?: string;
   model?: string;
+  trim?: string | null;
   year?: number;
   vin?: string | null;
   license_plate?: string | null;

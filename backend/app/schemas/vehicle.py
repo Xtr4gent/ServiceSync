@@ -6,6 +6,7 @@ class VehicleBase(BaseModel):
     nickname: str | None = None
     make: str
     model: str
+    trim: str | None = None
     year: int
     vin: str | None = None
     license_plate: str | None = None
@@ -21,6 +22,7 @@ class VehicleUpdate(BaseModel):
     nickname: str | None = None
     make: str | None = None
     model: str | None = None
+    trim: str | None = None
     year: int | None = None
     vin: str | None = None
     license_plate: str | None = None

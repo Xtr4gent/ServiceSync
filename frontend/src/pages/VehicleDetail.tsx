@@ -26,6 +26,30 @@ import {
   type ModCreate,
 } from "../api/mods";
 
+const MAINTENANCE_TYPES = [
+  "Oil change",
+  "Brake pad replacement",
+  "Brake fluid flush",
+  "Tire rotation",
+  "Tire replacement",
+  "Air filter replacement",
+  "Cabin air filter",
+  "Spark plugs",
+  "Battery replacement",
+  "Coolant flush",
+  "Transmission fluid",
+  "Differential fluid",
+  "Wiper blades",
+  "Alignment",
+  "State inspection",
+  "Oil filter",
+  "Serpentine belt",
+  "Timing belt",
+  "Windshield replacement",
+  "A/C recharge",
+  "Other",
+] as const;
+
 function formatDate(s: string) {
   return new Date(s).toLocaleDateString();
 }
@@ -50,8 +74,24 @@ export default function VehicleDetail() {
   const [editingMod, setEditingMod] = useState<Mod | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [receiptFile, setReceiptFile] = useState<{ maintenanceId: number; file: File } | null>(null);
+  const [maintenanceSortBy, setMaintenanceSortBy] = useState<"date" | "type" | "cost" | "mileage">("date");
+  const [maintenanceSortOrder, setMaintenanceSortOrder] = useState<"asc" | "desc">("desc");
 
   const vehicleId = Number(id);
+
+  const sortedMaintenance = [...maintenance].sort((a, b) => {
+    let cmp = 0;
+    if (maintenanceSortBy === "date") {
+      cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
+    } else if (maintenanceSortBy === "type") {
+      cmp = (a.type || "").localeCompare(b.type || "");
+    } else if (maintenanceSortBy === "cost") {
+      cmp = (a.cost ?? 0) - (b.cost ?? 0);
+    } else {
+      cmp = (a.mileage ?? 0) - (b.mileage ?? 0);
+    }
+    return maintenanceSortOrder === "asc" ? cmp : -cmp;
+  });
 
   function load() {
     if (!vehicleId) return;
@@ -175,7 +215,7 @@ export default function VehicleDetail() {
     );
   }
 
-  const title = vehicle.nickname || `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+  const title = vehicle.nickname || `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.trim ? ` ${vehicle.trim}` : ""}`;
 
   return (
     <div className="min-h-screen bg-garage-950">
@@ -236,12 +276,19 @@ export default function VehicleDetail() {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-semibold text-slate-200">{title}</h1>
-            {vehicle.nickname && (
+            {(vehicle.nickname || vehicle.trim) && (
               <p className="text-garage-500 mt-1">
                 {vehicle.year} {vehicle.make} {vehicle.model}
+                {vehicle.trim ? ` ${vehicle.trim}` : ""}
               </p>
             )}
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              {vehicle.trim && (
+                <>
+                  <dt className="text-garage-500">Trim</dt>
+                  <dd className="text-slate-300">{vehicle.trim}</dd>
+                </>
+              )}
               {vehicle.vin && (
                 <>
                   <dt className="text-garage-500">VIN</dt>
@@ -320,16 +367,33 @@ export default function VehicleDetail() {
                 onSubmit={handleMaintenanceSubmit}
                 className="p-4 rounded-xl bg-garage-900 border border-garage-700 space-y-3"
               >
-                <input
-                  type="text"
-                  value={maintenanceForm.type}
-                  onChange={(e) =>
-                    setMaintenanceForm((f) => (f ? { ...f, type: e.target.value } : null))
-                  }
-                  placeholder="Type (e.g. Oil change, Brakes)"
-                  className="w-full px-3 py-2 rounded-lg bg-garage-800 border border-garage-600 text-white text-sm"
-                  required
-                />
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Type</label>
+                  <select
+                    value={MAINTENANCE_TYPES.includes(maintenanceForm.type as (typeof MAINTENANCE_TYPES)[number]) ? maintenanceForm.type : "Other"}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setMaintenanceForm((f) => (f ? { ...f, type: v === "Other" ? "" : v } : null));
+                    }}
+                    className="w-full px-3 py-2 rounded-lg bg-garage-800 border border-garage-600 text-white text-sm"
+                  >
+                    {MAINTENANCE_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  {!MAINTENANCE_TYPES.includes(maintenanceForm.type as (typeof MAINTENANCE_TYPES)[number]) && (
+                    <input
+                      type="text"
+                      value={maintenanceForm.type}
+                      onChange={(e) =>
+                        setMaintenanceForm((f) => (f ? { ...f, type: e.target.value } : null))
+                      }
+                      placeholder="Enter custom type"
+                      className="mt-2 w-full px-3 py-2 rounded-lg bg-garage-800 border border-garage-600 text-white text-sm"
+                      required
+                    />
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="date"
@@ -405,24 +469,62 @@ export default function VehicleDetail() {
               </form>
             )}
 
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="text-sm text-garage-500">Sort by:</span>
+              <select
+                value={maintenanceSortBy}
+                onChange={(e) =>
+                  setMaintenanceSortBy(e.target.value as "date" | "type" | "cost" | "mileage")
+                }
+                className="px-2 py-1 rounded bg-garage-800 border border-garage-600 text-white text-sm"
+              >
+                <option value="date">Date</option>
+                <option value="type">Type</option>
+                <option value="cost">Cost</option>
+                <option value="mileage">Mileage</option>
+              </select>
+              <select
+                value={maintenanceSortOrder}
+                onChange={(e) => setMaintenanceSortOrder(e.target.value as "asc" | "desc")}
+                className="px-2 py-1 rounded bg-garage-800 border border-garage-600 text-white text-sm"
+              >
+                <option value="desc">Newest / Z–A / High first</option>
+                <option value="asc">Oldest / A–Z / Low first</option>
+              </select>
+            </div>
             <ul className="space-y-3">
-              {maintenance.map((m) => (
+              {sortedMaintenance.map((m) => (
                 <li
                   key={m.id}
                   className="p-4 rounded-xl bg-garage-900 border border-garage-700"
                 >
                   {editingMaintenance?.id === m.id ? (
                     <form onSubmit={handleMaintenanceUpdate} className="space-y-2">
-                      <input
-                        type="text"
-                        value={editingMaintenance.type}
-                        onChange={(e) =>
-                          setEditingMaintenance((x) =>
-                            x ? { ...x, type: e.target.value } : null
-                          )
-                        }
-                        className="w-full px-2 py-1 rounded bg-garage-800 border border-garage-600 text-white text-sm"
-                      />
+                      <div>
+                        <select
+                          value={MAINTENANCE_TYPES.includes(editingMaintenance.type as (typeof MAINTENANCE_TYPES)[number]) ? editingMaintenance.type : "Other"}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setEditingMaintenance((x) => (x ? { ...x, type: v === "Other" ? "" : v } : null));
+                          }}
+                          className="w-full px-2 py-1 rounded bg-garage-800 border border-garage-600 text-white text-sm"
+                        >
+                          {MAINTENANCE_TYPES.map((t) => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                        {!MAINTENANCE_TYPES.includes(editingMaintenance.type as (typeof MAINTENANCE_TYPES)[number]) && (
+                          <input
+                            type="text"
+                            value={editingMaintenance.type}
+                            onChange={(e) =>
+                              setEditingMaintenance((x) => (x ? { ...x, type: e.target.value } : null))
+                            }
+                            placeholder="Custom type"
+                            className="mt-1 w-full px-2 py-1 rounded bg-garage-800 border border-garage-600 text-white text-sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2 flex-wrap">
                         <input
                           type="date"

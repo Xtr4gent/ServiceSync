@@ -22,6 +22,7 @@ export default function VehicleForm() {
     nickname: "",
     make: "",
     model: "",
+    trim: "",
     year: new Date().getFullYear(),
     vin: "",
     license_plate: "",
@@ -39,6 +40,7 @@ export default function VehicleForm() {
           nickname: v.nickname ?? "",
           make: v.make,
           model: v.model,
+          trim: v.trim ?? "",
           year: v.year,
           vin: v.vin ?? "",
           license_plate: v.license_plate ?? "",
@@ -58,6 +60,7 @@ export default function VehicleForm() {
         nickname: form.nickname || null,
         make: form.make,
         model: form.model,
+        trim: form.trim || null,
         year: form.year,
         vin: form.vin || null,
         license_plate: form.license_plate || null,
@@ -124,6 +127,16 @@ export default function VehicleForm() {
               required
             />
           </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-400 mb-1">Trim</label>
+          <input
+            type="text"
+            value={form.trim ?? ""}
+            onChange={(e) => setForm((f) => ({ ...f, trim: e.target.value }))}
+            className="w-full px-3 py-2 rounded-lg bg-garage-800 border border-garage-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            placeholder="e.g. Sport, Limited"
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>

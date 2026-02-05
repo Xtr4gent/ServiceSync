@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { listVehicles, uploadsUrl, type Vehicle } from "../api/vehicles";
+import { getDashboardStats, type DashboardStats } from "../api/dashboard";
+
+function formatMoney(n: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+}
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,6 +19,13 @@ export default function Dashboard() {
       .then(setVehicles)
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const year = new Date().getFullYear();
+    getDashboardStats(year)
+      .then(setStats)
+      .catch(console.error);
   }, []);
 
   return (
@@ -35,6 +48,68 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
+        {stats && (
+          <section className="mb-8 p-4 rounded-xl bg-garage-900 border border-garage-700">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4">
+              {stats.year} maintenance summary
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3 mb-4">
+              <div>
+                <p className="text-sm text-garage-500">Total cost (YTD)</p>
+                <p className="text-xl font-semibold text-amber-400">
+                  {formatMoney(stats.total_cost)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-garage-500">Total services</p>
+                <p className="text-xl font-semibold text-slate-200">
+                  {stats.total_services}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-garage-500">Avg. cost per service</p>
+                <p className="text-xl font-semibold text-slate-200">
+                  {stats.total_services > 0
+                    ? formatMoney(stats.average_cost_per_service)
+                    : "—"}
+                </p>
+              </div>
+            </div>
+            {stats.by_vehicle.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-garage-500 border-b border-garage-700">
+                      <th className="pb-2 pr-4">Vehicle</th>
+                      <th className="pb-2 pr-4">Services</th>
+                      <th className="pb-2 pr-4">Total cost</th>
+                      <th className="pb-2">Avg. cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.by_vehicle.map((v) => (
+                      <tr key={v.vehicle_id} className="border-b border-garage-800">
+                        <td className="py-2 pr-4 text-slate-200">
+                          {v.nickname || `${v.year} ${v.make} ${v.model}`}
+                        </td>
+                        <td className="py-2 pr-4 text-slate-300">{v.service_count}</td>
+                        <td className="py-2 pr-4 text-slate-300">
+                          {formatMoney(v.total_cost)}
+                        </td>
+                        <td className="py-2 text-slate-300">
+                          {v.service_count > 0
+                            ? formatMoney(v.average_cost)
+                            : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
+
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-semibold text-slate-200">Your vehicles</h1>
           <Link
@@ -78,11 +153,12 @@ export default function Dashboard() {
                 </div>
                 <div className="p-4">
                   <h2 className="font-semibold text-slate-200">
-                    {v.nickname || `${v.year} ${v.make} ${v.model}`}
+                    {v.nickname || `${v.year} ${v.make} ${v.model}${v.trim ? ` ${v.trim}` : ""}`}
                   </h2>
                   {v.nickname && (
                     <p className="text-sm text-garage-600">
                       {v.year} {v.make} {v.model}
+                      {v.trim ? ` ${v.trim}` : ""}
                     </p>
                   )}
                   {v.current_mileage != null && (
