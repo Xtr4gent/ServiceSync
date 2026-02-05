@@ -12,7 +12,8 @@ import {
 export default function VehicleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEdit = id !== "new";
+  // On /vehicles/new there is no :id param (id is undefined); only treat as edit when we have a numeric id
+  const isEdit = Boolean(id && id !== "new" && !Number.isNaN(Number(id)));
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -28,8 +29,10 @@ export default function VehicleForm() {
   });
 
   useEffect(() => {
-    if (!isEdit) return;
-    getVehicle(Number(id))
+    if (!isEdit || id == null) return;
+    const numId = Number(id);
+    if (Number.isNaN(numId)) return;
+    getVehicle(numId)
       .then((v) => {
         setForm({
           id: v.id,

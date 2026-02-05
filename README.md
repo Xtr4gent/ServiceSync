@@ -1,4 +1,4 @@
-# Garage Fleet
+# ServiceSync
 
 Track vehicles, maintenance, and mods for your fleet. Single-user web app: **FastAPI** (Python) backend + **React** (TypeScript) frontend, **SQLite**, login-protected. Designed to run on a Windows VM and be hosted at **garage.hamiltons.cloud**.
 
@@ -76,10 +76,10 @@ When `GARAGE_FRONTEND_DIST` is set, the backend serves the React app at `/` and 
 
 ```powershell
 cd C:\path\to\ServiceSync\backend
-nssm install GarageFleet "C:\path\to\ServiceSync\backend\.venv\Scripts\python.exe" "-m" "uvicorn" "app.main:app" "--host" "0.0.0.0" "--port" "8000"
-nssm set GarageFleet AppDirectory "C:\path\to\ServiceSync\backend"
-nssm set GarageFleet AppEnvironmentExtra "GARAGE_USERNAME=admin" "GARAGE_PASSWORD=YourPassword" "GARAGE_SECRET_KEY=YourSecret" "GARAGE_FRONTEND_DIST=C:\path\to\ServiceSync\frontend\dist"
-nssm start GarageFleet
+nssm install ServiceSync "C:\path\to\ServiceSync\backend\.venv\Scripts\python.exe" "-m" "uvicorn" "app.main:app" "--host" "0.0.0.0" "--port" "8000"
+nssm set ServiceSync AppDirectory "C:\path\to\ServiceSync\backend"
+nssm set ServiceSync AppEnvironmentExtra "GARAGE_USERNAME=admin" "GARAGE_PASSWORD=YourPassword" "GARAGE_SECRET_KEY=YourSecret" "GARAGE_FRONTEND_DIST=C:\path\to\ServiceSync\frontend\dist"
+nssm start ServiceSync
 ```
 
 Adjust paths and env vars. The app will listen on port 8000. Point **garage.hamiltons.cloud** (DNS + reverse proxy or port forward) to this VM:8000.
@@ -91,7 +91,7 @@ PM2 can run Python via `python` or `uvicorn`:
 ```powershell
 npm install -g pm2
 cd backend
-pm2 start "uvicorn app.main:app --host 0.0.0.0 --port 8000" --name garage --interpreter none
+pm2 start "uvicorn app.main:app --host 0.0.0.0 --port 8000" --name servicesync --interpreter none
 pm2 save
 pm2 startup
 ```

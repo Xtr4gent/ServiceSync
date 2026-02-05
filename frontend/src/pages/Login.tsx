@@ -28,7 +28,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-garage-950 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-amber-400 tracking-tight">Garage Fleet</h1>
+          <h1 className="text-2xl font-bold text-amber-400 tracking-tight">ServiceSync</h1>
           <p className="text-garage-600 mt-1 text-sm">garage.hamiltons.cloud</p>
         </div>
         <form

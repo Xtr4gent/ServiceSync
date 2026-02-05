@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    app_name: str = "Garage Fleet"
+    app_name: str = "ServiceSync"
     secret_key: str = "change-me-in-production-use-env"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 7  # 1 week

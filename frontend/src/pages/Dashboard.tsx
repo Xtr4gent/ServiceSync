@@ -20,7 +20,7 @@ export default function Dashboard() {
       <header className="border-b border-garage-800 bg-garage-900/80 backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="text-lg font-bold text-amber-400 tracking-tight">
-            Garage Fleet
+            ServiceSync
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-garage-600">{user?.username}</span>

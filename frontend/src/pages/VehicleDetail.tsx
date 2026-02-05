@@ -183,7 +183,7 @@ export default function VehicleDetail() {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="text-amber-400 font-bold tracking-tight hover:text-amber-300">
-              Garage Fleet
+              ServiceSync
             </Link>
             <span className="text-garage-600">/</span>
             <span className="text-slate-300 font-medium">{title}</span>
