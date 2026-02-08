@@ -49,64 +49,140 @@ export default function Dashboard() {
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         {stats && (
-          <section className="mb-8 p-4 rounded-xl bg-garage-900 border border-garage-700">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">
-              {stats.year} maintenance summary
+          <section className="mb-8 space-y-6">
+            <h2 className="text-lg font-semibold text-slate-200">
+              {stats.year} cost summary
             </h2>
-            <div className="grid gap-4 sm:grid-cols-3 mb-4">
-              <div>
-                <p className="text-sm text-garage-500">Total cost (YTD)</p>
-                <p className="text-xl font-semibold text-amber-400">
-                  {formatMoney(stats.total_cost)}
-                </p>
+
+            {/* Maintenance — cost to keep vehicles on the road */}
+            <div className="p-4 rounded-xl bg-garage-900 border border-garage-700">
+              <h3 className="text-base font-medium text-amber-400 mb-1">
+                Maintenance
+              </h3>
+              <p className="text-sm text-garage-500 mb-4">
+                Cost to keep vehicles on the road (services, repairs, wear items)
+              </p>
+              <div className="grid gap-4 sm:grid-cols-3 mb-4">
+                <div>
+                  <p className="text-sm text-garage-500">Total cost (YTD)</p>
+                  <p className="text-xl font-semibold text-amber-400">
+                    {formatMoney(stats.maintenance.total_cost)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-garage-500">Services</p>
+                  <p className="text-xl font-semibold text-slate-200">
+                    {stats.maintenance.total_services}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-garage-500">Avg. per service</p>
+                  <p className="text-xl font-semibold text-slate-200">
+                    {stats.maintenance.total_services > 0
+                      ? formatMoney(stats.maintenance.average_cost_per_service)
+                      : "—"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-garage-500">Total services</p>
-                <p className="text-xl font-semibold text-slate-200">
-                  {stats.total_services}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-garage-500">Avg. cost per service</p>
-                <p className="text-xl font-semibold text-slate-200">
-                  {stats.total_services > 0
-                    ? formatMoney(stats.average_cost_per_service)
-                    : "—"}
-                </p>
-              </div>
-            </div>
-            {stats.by_vehicle.length > 0 && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-garage-500 border-b border-garage-700">
-                      <th className="pb-2 pr-4">Vehicle</th>
-                      <th className="pb-2 pr-4">Services</th>
-                      <th className="pb-2 pr-4">Total cost</th>
-                      <th className="pb-2">Avg. cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats.by_vehicle.map((v) => (
-                      <tr key={v.vehicle_id} className="border-b border-garage-800">
-                        <td className="py-2 pr-4 text-slate-200">
-                          {v.nickname || `${v.year} ${v.make} ${v.model}`}
-                        </td>
-                        <td className="py-2 pr-4 text-slate-300">{v.service_count}</td>
-                        <td className="py-2 pr-4 text-slate-300">
-                          {formatMoney(v.total_cost)}
-                        </td>
-                        <td className="py-2 text-slate-300">
-                          {v.service_count > 0
-                            ? formatMoney(v.average_cost)
-                            : "—"}
-                        </td>
+              {stats.by_vehicle.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-garage-500 border-b border-garage-700">
+                        <th className="pb-2 pr-4">Vehicle</th>
+                        <th className="pb-2 pr-4">Services</th>
+                        <th className="pb-2 pr-4">Total cost</th>
+                        <th className="pb-2">Avg. cost</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {stats.by_vehicle.map((v) => (
+                        <tr key={v.vehicle_id} className="border-b border-garage-800">
+                          <td className="py-2 pr-4 text-slate-200">
+                            {v.nickname || `${v.year} ${v.make} ${v.model}`}
+                          </td>
+                          <td className="py-2 pr-4 text-slate-300">
+                            {v.maintenance_service_count}
+                          </td>
+                          <td className="py-2 pr-4 text-slate-300">
+                            {formatMoney(v.maintenance_total_cost)}
+                          </td>
+                          <td className="py-2 text-slate-300">
+                            {v.maintenance_service_count > 0
+                              ? formatMoney(v.maintenance_average_cost)
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Mods — optional upgrades */}
+            <div className="p-4 rounded-xl bg-garage-900 border border-garage-700">
+              <h3 className="text-base font-medium text-slate-300 mb-1">
+                Mods
+              </h3>
+              <p className="text-sm text-garage-500 mb-4">
+                Optional upgrades and aftermarket parts
+              </p>
+              <div className="grid gap-4 sm:grid-cols-3 mb-4">
+                <div>
+                  <p className="text-sm text-garage-500">Total cost (YTD)</p>
+                  <p className="text-xl font-semibold text-slate-200">
+                    {formatMoney(stats.mods.total_cost)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-garage-500">Mods</p>
+                  <p className="text-xl font-semibold text-slate-200">
+                    {stats.mods.total_count}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-garage-500">Avg. per mod</p>
+                  <p className="text-xl font-semibold text-slate-200">
+                    {stats.mods.total_count > 0
+                      ? formatMoney(stats.mods.average_cost_per_mod)
+                      : "—"}
+                  </p>
+                </div>
               </div>
-            )}
+              {stats.by_vehicle.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-garage-500 border-b border-garage-700">
+                        <th className="pb-2 pr-4">Vehicle</th>
+                        <th className="pb-2 pr-4">Mods</th>
+                        <th className="pb-2 pr-4">Total cost</th>
+                        <th className="pb-2">Avg. cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats.by_vehicle.map((v) => (
+                        <tr key={v.vehicle_id} className="border-b border-garage-800">
+                          <td className="py-2 pr-4 text-slate-200">
+                            {v.nickname || `${v.year} ${v.make} ${v.model}`}
+                          </td>
+                          <td className="py-2 pr-4 text-slate-300">{v.mods_count}</td>
+                          <td className="py-2 pr-4 text-slate-300">
+                            {formatMoney(v.mods_total_cost)}
+                          </td>
+                          <td className="py-2 text-slate-300">
+                            {v.mods_count > 0
+                              ? formatMoney(v.mods_average_cost)
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </section>
         )}
 
