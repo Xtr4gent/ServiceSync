@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statsYear, setStatsYear] = useState<number | "all">(new Date().getFullYear());
 
   useEffect(() => {
     listVehicles()
@@ -22,11 +23,12 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const year = new Date().getFullYear();
-    getDashboardStats(year)
-      .then(setStats)
-      .catch(console.error);
-  }, []);
+    if (statsYear === "all") {
+      getDashboardStats(null, true).then(setStats).catch(console.error);
+    } else {
+      getDashboardStats(statsYear, false).then(setStats).catch(console.error);
+    }
+  }, [statsYear]);
 
   return (
     <div className="min-h-screen bg-garage-950">
@@ -50,9 +52,30 @@ export default function Dashboard() {
       <main className="max-w-5xl mx-auto px-4 py-8">
         {stats && (
           <section className="mb-8 space-y-6">
-            <h2 className="text-lg font-semibold text-slate-200">
-              {stats.year} cost summary
-            </h2>
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-lg font-semibold text-slate-200">
+                {stats.all_time ? "All time" : stats.year} cost summary
+              </h2>
+              <select
+                value={statsYear === "all" ? "all" : statsYear}
+                onChange={(e) =>
+                  setStatsYear(e.target.value === "all" ? "all" : parseInt(e.target.value, 10))
+                }
+                className="px-3 py-1.5 rounded-lg bg-garage-800 border border-garage-600 text-white text-sm"
+              >
+                <option value="all">All time</option>
+                {[
+                  new Date().getFullYear(),
+                  new Date().getFullYear() - 1,
+                  new Date().getFullYear() - 2,
+                  new Date().getFullYear() - 3,
+                ].map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* Maintenance — cost to keep vehicles on the road */}
             <div className="p-4 rounded-xl bg-garage-900 border border-garage-700">

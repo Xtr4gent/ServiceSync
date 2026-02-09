@@ -16,6 +16,7 @@ export interface VehicleStats {
 
 export interface DashboardStats {
   year: number;
+  all_time: boolean;
   maintenance: {
     total_cost: number;
     total_services: number;
@@ -29,7 +30,13 @@ export interface DashboardStats {
   by_vehicle: VehicleStats[];
 }
 
-export async function getDashboardStats(year?: number): Promise<DashboardStats> {
-  const params = year != null ? `?year=${year}` : "";
-  return api<DashboardStats>(`/dashboard/stats${params}`);
+export async function getDashboardStats(
+  year?: number | null,
+  allTime?: boolean
+): Promise<DashboardStats> {
+  const params = new URLSearchParams();
+  if (allTime) params.set("all_time", "true");
+  else if (year != null) params.set("year", String(year));
+  const q = params.toString();
+  return api<DashboardStats>(`/dashboard/stats${q ? `?${q}` : ""}`);
 }
